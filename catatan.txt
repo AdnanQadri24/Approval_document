@@ -1,0 +1,8 @@
+4 ganti dengan settingan database anda
+   
+POSTGRES_PRISMA_URL="postgresql://username:password@localhost:5432/nama_database"
+POSTGRES_URL_NON_POOLING="postgresql://username:password@localhost:5432/nama_database"
+
+
+2 lalu jalankan npx prisma migrate dev
+3 jalankan npm run dev
