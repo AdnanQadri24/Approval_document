@@ -53,7 +53,7 @@ export const {handlers, signIn, signOut, auth} = NextAuth({
             }}) {
             const isLoggedIn = !!auth
                 ?.user;
-            const ProtectedRoutes = ["/dashboard"];
+            const ProtectedRoutes = ["/dashboard", "/"];
 
             if (!isLoggedIn && ProtectedRoutes.includes(nextUrl.pathname)) {
                 return Response.redirect(new URL("/login", nextUrl))

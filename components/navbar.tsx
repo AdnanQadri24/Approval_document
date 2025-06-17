@@ -1,11 +1,14 @@
 import Link from "next/link";
 import Image from "next/image";
-import {auth, signOut} from "@/auth"
+import { auth, signOut } from "@/auth";
+import DocDropdown from "./adm-drop";
+import StdDropdown from "./std-drop";
 
 const Navbar = async () => {
     const session = await auth();
+
     return (
-        <nav className="bg-white border-gray-200 border-b">
+        <nav className="bg-white border-gray-400 border-b">
             <div className="flex max-w-screen-xl items-center mx-auto justify-between p-4">
                 <Link href="/dashboard">
                     <Image
@@ -13,63 +16,65 @@ const Navbar = async () => {
                         alt="logo"
                         width={300}
                         height={36}
-                        priority/>
+                        priority
+                    />
                 </Link>
-                <div className="flex items-center gap-3">
-                    <ul
-                        className="flex items-center gap-4 mr-5 font-semibold text-gray-600 hover-text-400">
-                        <li>
+
+                <div className="flex items-center gap-12">
+                    <ul className="flex items-center gap-4 font-semibold text-gray-600 hover-text-400">
+                        <li className="hover:bg-gray-400 p-2 rounded-md hover:text-white">
                             <Link href="/dashboard">Home</Link>
                         </li>
-                        <li>
-                            <Link href="product">Product</Link>
-                        </li>
-                        <li>
-                            <Link href="user">Users</Link>
-                        </li>
+                        {session && (
+                            <>
+                                {session.user.role === "admin" && <DocDropdown />}
+                                {session.user.role === "manager" && <li className="hover:bg-gray-400 p-2 rounded-md hover:text-white"><Link href="/manager">Mail</Link></li>}
+                                {session.user.role === "standarisasi" && (
+                                    <StdDropdown />
+                                )}
+                            </>
+                        )}
                     </ul>
-                    <div className="flex gap-3 items-center">
-                        <div className="flex flex-col justify-center -space-y-1">
-                            <span className="font-semibold text-gray-600 text-right capitalize">
-                                username
-                            </span>
-                            <span className="font-xs text-gray-400 text-right capitalize">
-                                admin
-                            </span>
+
+                    {session && (
+                        <div className="flex gap-3 items-center">
+                            <div className="flex flex-col items-center justify-center -space-y-1">
+                                <span className="font-semibold text-gray-600 text-right capitalize">
+                                    {session.user.name}
+                                </span>
+                                <span className="text-sm mx-auto text-gray-400 text-right capitalize">
+                                    {session.user.role}
+                                </span>
+                            </div>
                         </div>
-                        <button type="button" className="text-sm ring-2 bg-gray-100 rounded-full">
-                            <Image
-                                alt="avatar"
-                                src={session
-                                    ?.user.image || "/user.svg"}
-                                width={64}
-                                height={64}
-                                className="w-8 h-8 rounded-full"/>
-                        </button>
-                    </div>
-                    {
-                        session
-                            ? (
-                                <form
-                                    action={async () => {
-                                        "use server";
-                                        await signOut({redirectTo: "/login"})
-                                    }}>
-                                    <button
-                                        type="submit"
-                                        className="bg-red-400 text-white px-4 py-2 rounded-md hover:bg-red-500 ">SignOut</button>
-                                </form>
-                            )
-                            : (
-                                <Link
-                                    href="/login"
-                                    className="bg-red-400 text-white px-4 py-2 rounded-md hover:bg-red-500">Sign In</Link>
-                            )
-                    }
+                    )}
+
+                    {session ? (
+                        <form
+                            action={async () => {
+                                "use server";
+                                await signOut({ redirectTo: "/login" });
+                            }}
+                        >
+                            <button
+                                type="submit"
+                                className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-400"
+                            >
+                                Sign Out
+                            </button>
+                        </form>
+                    ) : (
+                        <Link
+                            href="/login"
+                            className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-400"
+                        >
+                            Sign In
+                        </Link>
+                    )}
                 </div>
             </div>
         </nav>
-    )
-}
+    );
+};
 
 export default Navbar;

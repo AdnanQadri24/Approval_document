@@ -51,12 +51,11 @@ model User {
   name          String?
   email         String?   @unique
   emailVerified DateTime? @map("email_verified")
-  image         String?
   password      String?
   role          String    @default("user")
   accounts      Account[]
   sessions      Session[]
-  product       Product[]
+  document      Document[]
  
   @@map("users")
 }
@@ -70,12 +69,14 @@ model VerificationToken {
   @@map("verification_tokens")
 }
 
-model Product {
+model Document {
   id String @id @default(cuid())
-  name String
-  price Int
+  title String
+  summary String?
+  fileUrl String?
   createdAt DateTime @default(now())
   updateAt DateTime @updatedAt
+  status String
   userId String 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
