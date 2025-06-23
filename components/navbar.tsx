@@ -1,8 +1,12 @@
+// File: components/navbar.tsx
 import Link from "next/link";
 import Image from "next/image";
 import { auth, signOut } from "@/auth";
 import DocDropdown from "./adm-drop";
-import StdDropdown from "./std-drop";
+// import AdminNotifications from "./admin-notifications";
+// import StandarisasiNotifications from "./standarisasi-notifications";
+// import LoncengManager from "./lonceng";
+import Lonceng from "./lonceng";
 
 const Navbar = async () => {
     const session = await auth();
@@ -27,10 +31,22 @@ const Navbar = async () => {
                         </li>
                         {session && (
                             <>
-                                {session.user.role === "admin" && <DocDropdown />}
-                                {session.user.role === "manager" && <li className="hover:bg-gray-400 p-2 rounded-md hover:text-white"><Link href="/manager">Mail</Link></li>}
+                                {session.user.role === "admin" && (
+                                    <>
+                                        <DocDropdown />
+                                    </>
+                                )}
+                                {session.user.role === "manager" && (
+                                    <li className="hover:bg-gray-400 p-2 rounded-md hover:text-white">
+                                        <Link className="flex items-center gap-1.5" href="/manager">
+                                            Pesan <Lonceng role="manager" />
+                                        </Link>
+                                    </li>
+                                )}
                                 {session.user.role === "standarisasi" && (
-                                    <StdDropdown />
+                                    <Link href="/standarisasi" className="flex items-center gap-1.5">
+                                        Pesan <Lonceng role="standarisasi" />
+                                    </Link>
                                 )}
                             </>
                         )}

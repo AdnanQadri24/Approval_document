@@ -3,25 +3,18 @@ import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 
-export default async function ManagerPage() {
+export default async function StandarisasiPage() {
     const session = await auth();
 
-    if (!session || session.user.role !== "manager") {
+    if (!session || session.user.role !== "standarisasi") {
         redirect("/login");
     }
 
     const documents = await prisma.document.findMany({
         where: {
-            OR: [
-                {
-                    managerApproved: false,
-                    status: "pending"
-                },
-                {
-                    managerApproved: false, 
-                    status: { in: ["pending", "Pending"] }
-                }
-            ]
+            managerApproved: true,
+            standardizationApproved: false,
+            status: "pending"
         },
         include: {
             user: true
@@ -33,7 +26,7 @@ export default async function ManagerPage() {
 
     return (
         <div className="container mx-auto p-6">
-            <h1 className="text-2xl font-bold mb-6">Dokumen yang Menunggu Persetujuan</h1>
+            <h1 className="text-2xl font-bold mb-6">Dokumen yang Menunggu Review Standarisasi</h1>
 
             <div className="grid gap-4">
                 {documents.map((doc) => (
@@ -45,6 +38,11 @@ export default async function ManagerPage() {
                                 <p className="text-sm text-gray-500">
                                     Tanggal: {new Date(doc.createdAt).toLocaleDateString("id-ID")}
                                 </p>
+                                {doc.managerNotes && (
+                                    <p className="text-sm text-blue-600 mt-2">
+                                        <strong>Catatan Manager:</strong> {doc.managerNotes}
+                                    </p>
+                                )}
                                 {doc.fileUrl && (
                                     <a
                                         href={doc.fileUrl}
@@ -57,7 +55,7 @@ export default async function ManagerPage() {
                                 )}
                             </div>
                             <Link
-                                href={`/manager/${doc.id}`}
+                                href={`/standarisasi/${doc.id}`}
                                 className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
                             >
                                 Review
@@ -67,9 +65,9 @@ export default async function ManagerPage() {
                 ))}
 
                 {documents.length === 0 && (
-                    <p className="text-center text-gray-500">Tidak ada dokumen yang menunggu persetujuan</p>
+                    <p className="text-center text-gray-500">Tidak ada dokumen yang menunggu review standarisasi</p>
                 )}
             </div>
         </div>
     );
-}
+} 

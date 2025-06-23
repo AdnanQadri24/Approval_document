@@ -17,6 +17,10 @@ interface Document {
     fileUrl: string | null;
     createdAt: Date;
     status: string;
+    managerApproved: boolean;
+    managerNotes: string | null;
+    standardizationApproved: boolean;
+    standardizationNotes: string | null;
     user: User;
 }
 
@@ -41,6 +45,39 @@ async function getDocuments(): Promise<Document[]> {
         console.error('Error fetching documents:', error);
         return [];
     }
+}
+
+// Fungsi untuk mendapatkan status yang lebih detail
+function getDetailedStatus(doc: Document): { status: string; color: string; description: string } {
+    if (doc.status === 'rejected') {
+        return {
+            status: 'Ditolak',
+            color: 'bg-red-100 text-red-800',
+            description: 'Dokumen ditolak'
+        };
+    }
+
+    if (doc.standardizationApproved) {
+        return {
+            status: 'Disetujui',
+            color: 'bg-green-100 text-green-800',
+            description: 'Disetujui Manager & Standarisasi'
+        };
+    }
+
+    if (doc.managerApproved) {
+        return {
+            status: 'Menunggu Standarisasi',
+            color: 'bg-blue-100 text-blue-800',
+            description: 'Disetujui Manager, menunggu Standarisasi'
+        };
+    }
+
+    return {
+        status: 'Menunggu Manager',
+        color: 'bg-yellow-100 text-yellow-800',
+        description: 'Menunggu approval dari Manager'
+    };
 }
 
 const ViewDocument: React.FC = async () => {
@@ -80,6 +117,9 @@ const ViewDocument: React.FC = async () => {
                                     Status
                                 </th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Approval Status
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Aksi
                                 </th>
                             </tr>
@@ -87,62 +127,70 @@ const ViewDocument: React.FC = async () => {
                         <tbody className="bg-white divide-y divide-gray-200">
                             {documents.length === 0 ? (
                                 <tr>
-                                    <td colSpan={6} className="px-6 py-4 text-center text-gray-500">
+                                    <td colSpan={7} className="px-6 py-4 text-center text-gray-500">
                                         Belum ada dokumen yang dibuat
                                     </td>
                                 </tr>
                             ) : (
-                                documents.map((doc: Document) => (
-                                    <tr key={doc.id} className="hover:bg-gray-50">
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="text-sm font-medium text-gray-900">
-                                                {doc.title}
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <SummaryCell
-                                                summary={doc.summary}
-                                                maxLength={100}
-                                            />
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            {doc.fileUrl ? (
-                                                <a
-                                                    href={doc.fileUrl}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                                                >
-                                                    📄 Lihat PDF
-                                                </a>
-                                            ) : (
-                                                <span className="text-gray-400 text-sm">Tidak ada file</span>
-                                            )}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                            {new Date(doc.createdAt).toLocaleDateString('id-ID', {
-                                                year: 'numeric',
-                                                month: 'long',
-                                                day: 'numeric',
-                                                hour: '2-digit',
-                                                minute: '2-digit'
-                                            })}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${doc.status === 'Approved'
-                                                    ? 'bg-green-100 text-green-800'
-                                                    : doc.status === 'Pending'
-                                                        ? 'bg-yellow-100 text-yellow-800'
-                                                        : 'bg-red-100 text-red-800'
-                                                }`}>
-                                                {doc.status}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                            <ActionButtons documentId={doc.id} />
-                                        </td>
-                                    </tr>
-                                ))
+                                documents.map((doc: Document) => {
+                                    const detailedStatus = getDetailedStatus(doc);
+                                    return (
+                                        <tr key={doc.id} className="hover:bg-gray-50">
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <div className="text-sm font-medium text-gray-900">
+                                                    {doc.title}
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <SummaryCell
+                                                    summary={doc.summary}
+                                                    maxLength={100}
+                                                />
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                {doc.fileUrl ? (
+                                                    <a
+                                                        href={doc.fileUrl}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                                                    >
+                                                        📄 Lihat PDF
+                                                    </a>
+                                                ) : (
+                                                    <span className="text-gray-400 text-sm">Tidak ada file</span>
+                                                )}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                {new Date(doc.createdAt).toLocaleDateString('id-ID', {
+                                                    year: 'numeric',
+                                                    month: 'long',
+                                                    day: 'numeric',
+                                                    hour: '2-digit',
+                                                    minute: '2-digit'
+                                                })}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${detailedStatus.color}`}>
+                                                    {detailedStatus.status}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <div className="text-xs space-y-1">
+                                                    <div className={`inline-flex px-2 py-1 rounded-full ${doc.managerApproved ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
+                                                        Manager: {doc.managerApproved ? '✓' : '⏳'}
+                                                    </div>
+                                                    <div className={`inline-flex px-2 py-1 rounded-full ${doc.standardizationApproved ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
+                                                        Standarisasi: {doc.standardizationApproved ? '✓' : '⏳'}
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                <ActionButtons documentId={doc.id} />
+                                            </td>
+                                        </tr>
+                                    );
+                                })
                             )}
                         </tbody>
                     </table>

@@ -78,6 +78,8 @@ export async function POST(request: Request) {
             }
         });
 
+        console.log('Created document:', document);
+
         return NextResponse.json(document);
     } catch (error) {
         console.error('Error creating document:', error);

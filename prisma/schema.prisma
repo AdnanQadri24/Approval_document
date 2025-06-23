@@ -69,6 +69,19 @@ model VerificationToken {
   @@map("verification_tokens")
 }
 
+model Notification {
+  id        String   @id @default(cuid())
+  title     String
+  message   String
+  type      String   // "rejection", "approval", "info"
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  documentId String?
+  document  Document? @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  
+  @@map("notifications")
+}
+
 model Document {
   id String @id @default(cuid())
   title String
@@ -76,7 +89,13 @@ model Document {
   fileUrl String?
   createdAt DateTime @default(now())
   updateAt DateTime @updatedAt
-  status String
+  status String @default("pending") // pending, approved, rejected
+  notes String? // untuk catatan dari manager
+  managerApproved Boolean @default(false) // apakah sudah disetujui manager
+  managerNotes String? // catatan dari manager
+  standardizationApproved Boolean @default(false) // apakah sudah disetujui standarisasi
+  standardizationNotes String? // catatan dari standarisasi
   userId String 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  notifications Notification[] // tambahkan ini
 }

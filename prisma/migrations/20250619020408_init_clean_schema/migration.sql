@@ -32,7 +32,6 @@ CREATE TABLE "users" (
     "name" TEXT,
     "email" TEXT,
     "email_verified" TIMESTAMP(3),
-    "image" TEXT,
     "password" TEXT,
     "role" TEXT NOT NULL DEFAULT 'user',
 
@@ -47,15 +46,35 @@ CREATE TABLE "verification_tokens" (
 );
 
 -- CreateTable
-CREATE TABLE "Product" (
+CREATE TABLE "notifications" (
     "id" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "price" INTEGER NOT NULL,
+    "title" TEXT NOT NULL,
+    "message" TEXT NOT NULL,
+    "type" TEXT NOT NULL,
+    "isRead" BOOLEAN NOT NULL DEFAULT false,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "documentId" TEXT,
+
+    CONSTRAINT "notifications_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Document" (
+    "id" TEXT NOT NULL,
+    "title" TEXT NOT NULL,
+    "summary" TEXT,
+    "fileUrl" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updateAt" TIMESTAMP(3) NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'pending',
+    "notes" TEXT,
+    "managerApproved" BOOLEAN NOT NULL DEFAULT false,
+    "managerNotes" TEXT,
+    "standardizationApproved" BOOLEAN NOT NULL DEFAULT false,
+    "standardizationNotes" TEXT,
     "userId" TEXT NOT NULL,
 
-    CONSTRAINT "Product_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Document_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -77,4 +96,7 @@ ALTER TABLE "accounts" ADD CONSTRAINT "accounts_user_id_fkey" FOREIGN KEY ("user
 ALTER TABLE "sessions" ADD CONSTRAINT "sessions_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Product" ADD CONSTRAINT "Product_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "notifications" ADD CONSTRAINT "notifications_documentId_fkey" FOREIGN KEY ("documentId") REFERENCES "Document"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Document" ADD CONSTRAINT "Document_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;

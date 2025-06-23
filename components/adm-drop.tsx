@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
+import Lonceng from "./lonceng";
 
 const DocDropdown = () => {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -25,15 +26,20 @@ const DocDropdown = () => {
 
     return (
         <li className="relative" ref={dropdownRef}>
-            <button
-                className="flex items-center gap-1 hover:bg-gray-400 p-2 rounded-md hover:text-white"
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            >
-                Document
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                </svg>
-            </button>
+            <div className="flex items-center gap-1">
+                <button
+                    className="flex items-center gap-1 hover:bg-gray-400 p-2 rounded-md hover:text-white"
+                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                >
+                    Document
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </button>
+
+                <Lonceng role="admin" />
+            </div>
+
             {isDropdownOpen && (
                 <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
                     <Link
